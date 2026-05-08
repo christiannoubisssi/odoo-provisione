@@ -1,0 +1,37 @@
+name: Build OdooProvisioner.exe
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Telecharger le code
+        uses: actions/checkout@v4
+
+      - name: Installer Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Installer les dependances
+        run: |
+          pip install customtkinter paramiko pyinstaller
+
+      - name: Construire l executable
+        run: |
+          pyinstaller --onefile --windowed `
+            --name "OdooProvisioner" `
+            --collect-all customtkinter `
+            main.py
+
+      - name: Publier le .exe
+        uses: actions/upload-artifact@v4
+        with:
+          name: OdooProvisioner-Windows
+          path: dist/OdooProvisioner.exe
+          retention-days: 30
